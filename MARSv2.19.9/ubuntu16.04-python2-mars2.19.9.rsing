@@ -1,0 +1,42 @@
+Bootstrap: localimage
+From: ubuntu16.04-python2-root5.34.38.simg
+
+%setup
+    cp Mars_V2-19-9.tgz ${SINGULARITY_ROOTFS}/opt/
+
+%labels
+    Maintainer "ssakurai@icrr.u-tokyo.ac.jp"
+    Description "This image provide python2 enviornment with ROOTv5"
+
+%post
+    
+    apt update
+
+    # Unpacking ROOT 5 sources
+    cd /opt/    
+    tar xzf Mars_V2-19-9.tgz
+
+    export MARSSYS="/opt/Mars_V2-19-9"
+    export ROOTSYS="/opt/root-v5.34.38"
+    export LD_LIBRARY_PATH="${ROOTSYS}/lib/root":"${MARSSYS}":"/usr/lib/x84_64-linux-gnu/":"${LD_LIBRARY_PATH}"
+    export PATH="${MARSSYS}":"${ROOTSYS}/bin":"${PATH}"
+    export OSTYPE="linux-gnu"
+
+    cd $MARSSYS
+    make -j2
+
+
+    cd /opt
+    rm -r ./Mars_V2-19-9.tgz
+
+%environment
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export MARSSYS="/opt/Mars_V2-19-9"
+    export ROOTSYS="/opt/root-v5.34.38"
+    export PATH="${MARSSYS}":"${ROOTSYS}/bin":"${PATH}"
+    export LD_LIBRARY_PATH="${ROOTSYS}/lib/root":"${MARSSYS}":"/usr/lib/x84_64-linux-gnu/":"${LD_LIBRARY_PATH}"
+    export PYTHONPATH="${ROOTSYS}/lib/root":"${PYTHONPATH}"
+    
+
+    
