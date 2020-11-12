@@ -21,7 +21,7 @@ From: ubuntu:16.04
     pip install --upgrade setuptools
 
     pip install numpy scipy matplotlib astropy selenium
-    pip install jupyter bokeh 
+    pip install jupyter bokeh pandas
 
     ln -s /usr/lib/x86_64-linux-gnu/libpython2.7.so  /usr/lib/x86_64-linux-gnu/libpython.so
  
