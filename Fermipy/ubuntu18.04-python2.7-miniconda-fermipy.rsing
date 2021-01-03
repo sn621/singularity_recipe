@@ -1,0 +1,54 @@
+Bootstrap: docker
+From: ubuntu:18.04
+
+
+%labels
+    Maintainer "Shunsuke Sakurai, ssakurai@icrr.u-tokyo.ac.jp"
+    Description "Singularity container for fermipy"
+    Version v1.0
+
+
+%help
+    This is the container for Fermi-LAT analysis with fermipy.
+
+
+%post
+    apt update
+    apt install -y curl git
+    apt install -y g++ gcc make
+
+    ## Useful software
+    apt install -y wget gawk parallel
+    apt install -y emacs vim  # Use whichever you like!
+
+    ## Fermipy installation
+    cd /opt
+    git clone https://github.com/fermiPy/fermipy.git
+    cd /opt/fermipy
+    export CONDA_PATH="/opt/minconda"
+    export CONDA_DEPS='scipy matplotlib pyyaml pandas numpy astropy gammapy healpy astropy-healpix jupyter stackyter jupyterlab'
+    bash condainstall.sh
+
+    ## ds9 installation
+    cd /opt
+    mkdir ds9
+    cd /opt/ds9
+    wget http://ds9.si.edu/download/ubuntu18/ds9.ubuntu18.8.2.tar.gz
+    tar xzvf ds9.ubuntu18.8.2.tar.gz
+    rm /opt/ds9.ubuntu18.8.2.tar.gz
+
+    ## Prepare directory
+    mkdir /opt/init
+
+
+%files
+    fermipy-init.sh /opt/init
+
+
+%environment
+    export SINGULARITY_SHELL="/bin/bash --norc"
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export PATH="$PATH:/opt/ds9"
+    alias fermipy='. /opt/init/fermipy-init.sh; conda activate fermipy'
+    
