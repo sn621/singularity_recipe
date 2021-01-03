@@ -8,11 +8,14 @@ From: ubuntu:18.04
     Version v1.0
 
 
-%help
-    This is a container for Fermi-LAT analysis with Fermipy.
-
+%setup
+    cp fermipy-init.sh ${SINGULARITY_ROOTFS}/opt/
 
 %post
+    mkdir /opt/init
+    cd /opt
+    mv ./fermipy-init.sh ./init/
+
     apt update
     apt install -y curl git
     apt install -y g++ gcc make
@@ -37,18 +40,13 @@ From: ubuntu:18.04
     tar xzvf ds9.ubuntu18.8.2.tar.gz
     rm /opt/ds9/ds9.ubuntu18.8.2.tar.gz
 
-    ## Prepare directory
-    mkdir /opt/init
-
-
-%files
-    fermipy-init.sh /opt/init
-
-
+    
 %environment
     export SINGULARITY_SHELL="/bin/bash --norc"
     export LANG=C.UTF-8
     export LC_ALL=C.UTF-8
     export PATH="$PATH:/opt/ds9"
-    alias fermipy='. /opt/init/fermipy-init.sh; conda activate fermipy'
-    
+
+
+%help
+    This is a container for Fermi-LAT analysis with Fermipy.
