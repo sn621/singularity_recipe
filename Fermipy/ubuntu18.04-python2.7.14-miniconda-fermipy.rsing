@@ -4,12 +4,12 @@ From: ubuntu:18.04
 
 %labels
     Maintainer "Shunsuke Sakurai, ssakurai@icrr.u-tokyo.ac.jp"
-    Description "Singularity container for fermipy"
+    Description "Singularity container for Fermipy"
     Version v1.0
 
 
 %help
-    This is the container for Fermi-LAT analysis with fermipy.
+    This is a container for Fermi-LAT analysis with Fermipy.
 
 
 %post
@@ -26,7 +26,7 @@ From: ubuntu:18.04
     git clone https://github.com/fermiPy/fermipy.git
     cd /opt/fermipy
     export CONDA_PATH="/opt/minconda"
-    export CONDA_DEPS='scipy matplotlib pyyaml pandas numpy astropy gammapy healpy astropy-healpix jupyter stackyter jupyterlab'
+    export CONDA_DEPS='scipy matplotlib pyyaml numpy astropy gammapy healpy astropy-healpix jupyter jupyterlab'
     bash condainstall.sh
 
     ## ds9 installation
@@ -35,7 +35,7 @@ From: ubuntu:18.04
     cd /opt/ds9
     wget http://ds9.si.edu/download/ubuntu18/ds9.ubuntu18.8.2.tar.gz
     tar xzvf ds9.ubuntu18.8.2.tar.gz
-    rm /opt/ds9.ubuntu18.8.2.tar.gz
+    rm /opt/ds9/ds9.ubuntu18.8.2.tar.gz
 
     ## Prepare directory
     mkdir /opt/init
