@@ -1,0 +1,88 @@
+Bootstrap: docker
+From: ubuntu:18.04
+
+
+%labels
+    Maintainer "Shunsuke Sakurai, ssakurai@icrr.u-tokyo.ac.jp"
+    Description "Singularity container for HEASoft, especially Swift"
+    Version v1.0
+
+
+%help
+    This is the container for X-ray Analysis using HEASoft, especially Swift.
+    You need to download a source of HEASoft to build a container.
+
+
+%setup
+    cp heasoft-6.28src.tar.gz ${SINGULARITY_ROOTFS}/opt/
+
+
+%post
+    apt update
+    apt install -y git g++ gcc make
+
+    ## Useful software
+    apt install -y wget gawk parallel
+    apt install -y emacs vim  # Use whichever you like!
+
+    ## Prerequisite packages for HEASoft
+    apt install -y libreadline-dev
+    apt install -y libcurl4
+    apt install -y libcurl4-gnutls-dev
+    apt install -y libncurses5-dev
+    apt install -y xorg-dev
+    apt install -y gfortran
+    apt install -y perl-modules
+    
+    ## Python3 and useful modules
+    apt install -y python3 python3-pip python3-dev
+    pip3 install --upgrade setuptools
+    pip3 install --upgrade pip
+    pip3 install numpy scipy matplotlib astropy stackyter pandas
+    pip3 install jupyter jupyterlab
+
+    ## Enviornment parameters for the installation
+    export CC=/usr/bin/gcc
+    export CXX=/usr/bin/g++
+    export FC=/usr/bin/gfortran
+    export PERL=/usr/bin/perl
+    export PYTHON=/usr/bin/python3
+
+    ## HEASoft Installation
+    cd /opt/
+    mkdir logs
+    tar -xzvf heasoft-6.28src.tar.gz
+    cd /opt/heasoft-6.28/BUILD_DIR/
+    ./configure > /opt/logs/config.out 2>&1 
+    make > /opt/logs/build.log 2>&1
+    make install > /opt/logs/install.log 2>&1
+    cd /opt
+    rm -r ./heasoft-6.28src.tar.gz
+
+    ## ds9 installation
+    cd /opt
+    mkdir ds9
+    cd /opt/ds9
+    wget http://ds9.si.edu/download/ubuntu18/ds9.ubuntu18.8.2.tar.gz
+    tar xzvf ds9.ubuntu18.8.2.tar.gz
+    rm /opt/ds9/ds9.ubuntu18.8.2.tar.gz
+
+    ## Prepare directory
+    mkdir /opt/caldb
+
+
+%files
+    alias_config.fits /opt/caldb
+    caldb.config /opt/caldb    
+
+
+%environment
+    export SINGULARITY_SHELL="/bin/bash --norc"
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export HEADAS="/opt/heasoft-6.28/x86_64-pc-linux-gnu-libc2.27"
+    export CALDBCONFIG="/opt/caldb/caldb.config"
+    export CALDBALIAS="/opt/caldb/alias_config.fits"
+    export CALDB="https://heasarc.gsfc.nasa.gov/FTP/caldb"
+    export PATH="$PATH:/opt/ds9"
+    . $HEADAS/headas-init.sh
