@@ -8,13 +8,10 @@ From: ubuntu:18.04
     Version v1.0
 
 
-%help
-    This is the container for X-ray Analysis using HEASoft, especially Swift.
-    You need to download a source of HEASoft to build a container.
-
-
 %setup
     cp heasoft-6.28src.tar.gz ${SINGULARITY_ROOTFS}/opt/
+    cp alias_config.fits ${SINGULARITY_ROOTFS}/opt/
+    cp caldb.config ${SINGULARITY_ROOTFS}/opt/  
 
 
 %post
@@ -38,7 +35,7 @@ From: ubuntu:18.04
     apt install -y python3 python3-pip python3-dev
     pip3 install --upgrade setuptools
     pip3 install --upgrade pip
-    pip3 install numpy scipy matplotlib astropy stackyter pandas
+    pip3 install numpy scipy matplotlib astropy pandas
     pip3 install jupyter jupyterlab
 
     ## Enviornment parameters for the installation
@@ -69,12 +66,7 @@ From: ubuntu:18.04
 
     ## Prepare directory
     mkdir /opt/caldb
-
-
-%files
-    alias_config.fits /opt/caldb
-    caldb.config /opt/caldb    
-
+    mv /opt/*config* /opt/caldb
 
 %environment
     export SINGULARITY_SHELL="/bin/bash --norc"
@@ -86,3 +78,7 @@ From: ubuntu:18.04
     export CALDB="https://heasarc.gsfc.nasa.gov/FTP/caldb"
     export PATH="$PATH:/opt/ds9"
     . $HEADAS/headas-init.sh
+
+%help
+    This is a container for X-ray analysis using HEASoft, especially Swift.
+    You need to download a source of HEASoft to build a container.
