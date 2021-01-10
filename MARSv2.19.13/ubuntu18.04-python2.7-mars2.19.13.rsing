@@ -1,0 +1,119 @@
+Bootstrap: docker
+From: ubuntu:18.04
+
+
+%labels
+    Maintainer "Shunsuke Sakurai, ssakurai@icrr.u-tokyo.ac.jp"
+    Description "Singularity container for MARSv2-19-13 with ROOTv5.34.38"
+    Version v1.1
+
+
+%setup
+    cp root_v5.34.38.source.tar.gz ${SINGULARITY_ROOTFS}/opt/
+    cp Mars_V2-19-13.tgz ${SINGULARITY_ROOTFS}/opt/
+
+
+%post    
+    apt update
+
+    ## Prerequisites for ROOTv5 except Python
+    ## https://root.cern/install/dependencies
+    apt install -y dpkg-dev cmake g++ gcc
+    apt install -y binutils
+    apt install -y libx11-dev libxpm-dev libxft-dev libxext-dev
+    apt install -y libpng-dev libjpeg-dev
+    apt install -y libssl-dev
+
+    apt install -y gfortran
+    apt install -y libpcre3-dev xlibmesa-glu-dev libglew1.5-dev libftgl-dev
+    apt install -y libmysqlclient-dev libfftw3-dev libcfitsio-dev graphviz-dev
+    apt install -y libavahi-compat-libdnssd-dev libldap2-dev
+    apt install -y libxml2-dev libkrb5-dev libgsl0-dev libqt4-dev
+
+    ## Useful software
+    apt install -y emacs vim # Use whichever you like!
+    apt install -y curl gawk git parallel wget
+
+    ## Python installation
+    apt install -y python python-dev python-doc python-tk python-pip
+    pip install --upgrade pip
+    pip install --upgrade setuptools
+
+    pip install astropy matplotlib numpy pandas scipy  
+    pip install uproot
+    pip install selenium
+    pip install jupyter bokeh notebook==5.7.10 yapf 
+    pip install jupyter_contrib_nbextensions
+    jupyter contrib nbextension install --sys-prefix
+
+    ln -s /usr/lib/x86_64-linux-gnu/libpython2.7.so  /usr/lib/x86_64-linux-gnu/libpython.so
+ 
+    ## Unpacking ROOTv5 sources
+    cd /opt/    
+    tar xzf root_v5.34.38.source.tar.gz 
+    mv /opt/root /opt/root-v5.34.38-src
+    rm root_v5.34.38.source.tar.gz
+    cd /opt/root-v5.34.38-src
+
+    ## Patching the configure file to include Ubuntu-specific paths
+    sed s@"/usr/local/lib /usr/X11/lib /usr/lib /opt/lib"@"/usr/local/lib /usr/X11/lib /usr/lib /opt/lib /usr/lib/x86_64-linux-gnu"@ --in-place configure
+
+    ## Configuring and Make
+    ./configure --prefix=/opt/root-v5.34.38/ \
+    --etcdir=/opt/root-v5.34.38/etc \
+    --enable-builtin-zlib \
+    --enable-mathmore \
+    --enable-minuit2 \
+    --enable-python \
+    --enable-gsl-shared \
+    --with-x11-libdir=/usr/lib/x86_64-linux-gnu \
+    --with-xpm-libdir=/usr/lib/x86_64-linux-gnu \
+    --with-xft-libdir=/usr/lib/x86_64-linux-gnu \
+    --with-xext-libdir=/usr/lib/x86_64-linux-gnu \
+    --with-gsl-libdir=/usr/lib/x86_64-linux-gnu \
+    --with-python-incdir=/usr/include/python2.7 \
+    --with-python-libdir=/usr/lib/x86_64-linux-gnu 
+
+    make -j2
+    make install
+
+    cd /opt
+    rm -r ./root-v5.34.38-src
+
+    ## MARS installation
+    cd /opt/    
+    tar xzf Mars_V2-19-13.tgz
+
+    export MARSSYS="/opt/Mars_V2-19-13"
+    export ROOTSYS="/opt/root-v5.34.38"
+    export LD_LIBRARY_PATH="${ROOTSYS}/lib/root":"${MARSSYS}":"/usr/lib/x84_64-linux-gnu/":"${LD_LIBRARY_PATH}"
+    export PATH="${MARSSYS}":"${ROOTSYS}/bin":"${PATH}"
+    export OSTYPE="linux-gnu"
+
+    cd $MARSSYS
+    make -j2
+
+    cd /opt
+    rm -r ./Mars_V2-19-13.tgz
+
+    ## MARS booting setup in ROOT
+    cd /opt/root-v5.34.38/etc
+    sed s@"\(Unix\.\*\.Root\.DynamicPath:\)\(.*\)"@"\1\2\$\(MARSSYS\)/lib:"@ --in-place system.rootrc
+    sed s@"\(Unix\.\*\.Root\.MacroPath:\)\(.*\)"@"\1\2\$\(MARSSYS\)/macros:"@ --in-place system.rootrc
+    sed s@"\(Gui\.IconPath:\)\(.*\)\."@"\1\2\$\(MARSSYS\):."@ --in-place system.rootrc
+
+%environment
+    export SINGULARITY_SHELL="/bin/bash --norc"
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export MARSSYS="/opt/Mars_V2-19-13"
+    export ROOTSYS="/opt/root-v5.34.38"
+    export PATH="${MARSSYS}":"${ROOTSYS}/bin":"${PATH}"
+    export LD_LIBRARY_PATH="${ROOTSYS}/lib/root":"${MARSSYS}":"/usr/lib/x84_64-linux-gnu/":"${LD_LIBRARY_PATH}"
+    export PYTHONPATH="${ROOTSYS}/lib/root":"${PYTHONPATH}"
+
+%help
+    This is a container for MARS analysis v2-19-13.
+    uproot, PyROOT are available. You can use jupyter notebook with nbextensions.
+
+    
