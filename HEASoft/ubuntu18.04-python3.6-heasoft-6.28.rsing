@@ -5,7 +5,7 @@ From: ubuntu:18.04
 %labels
     Maintainer "Shunsuke Sakurai, ssakurai@icrr.u-tokyo.ac.jp"
     Description "Singularity container for HEASoft, especially Swift"
-    Version v1.1
+    Version v1.2
 
 
 %setup
@@ -38,7 +38,7 @@ From: ubuntu:18.04
     
     pip3 install astropy matplotlib numpy pandas scipy
     pip3 install jupyter selenium bokeh notebook==5.7.10 yapf
-    pip3 install jupyter_contrib_nbextensions
+    pip3 install jupyter_contrib_nbextensions parso==0.7.1
     jupyter contrib nbextension install --sys-prefix
 
     ## Enviornment parameters for the installation
