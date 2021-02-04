@@ -5,7 +5,7 @@ From: ubuntu:18.04
 %labels
     Maintainer "Shunsuke Sakurai, ssakurai@icrr.u-tokyo.ac.jp"
     Description "Singularity container for Fermipy"
-    Version v1.1
+    Version v1.2
 
 
 %setup
@@ -30,7 +30,7 @@ From: ubuntu:18.04
     git clone https://github.com/fermiPy/fermipy.git
     cd /opt/fermipy
     export CONDA_PATH="/opt/minconda"
-    export CONDA_DEPS='scipy matplotlib pyyaml numpy astropy gammapy healpy astropy-healpix jupyter notebook=5.7.10 jupyter_contrib_nbextensions yapf pandas'
+    export CONDA_DEPS='scipy matplotlib pyyaml numpy astropy gammapy healpy astropy-healpix jupyter notebook=5.7.10 jupyter_contrib_nbextensions yapf pandas parso=0.7.1'
     bash condainstall.sh
 
     ## ds9 installation
